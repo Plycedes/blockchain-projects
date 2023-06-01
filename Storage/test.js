@@ -1,5 +1,3 @@
-let abc = "Abhay";
+require("dotenv").config();
 
-if (abc.startsWith("A")) {
-    console.log(abc);
-}
+console.log(process.env.PRIVATE_KEY);
