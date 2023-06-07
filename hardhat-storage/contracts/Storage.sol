@@ -25,4 +25,8 @@ contract Storage {
         people.push(People(_num, _name));
         nameTofavNum[_name] = _num;
     }
+
+    function favNumQuery(string memory _name) public view returns(uint256){
+        return nameTofavNum[_name];
+    }    
 }
