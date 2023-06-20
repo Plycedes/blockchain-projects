@@ -15,12 +15,15 @@ contract NovoFund{
     address[] public funders;
     mapping(address => uint256) public addressToAmountFunded;
     
-    constructor(){
+    AggregatorV3Interface public priceFeed;
+
+    constructor(address priceFeedAddress){
         owner = msg.sender;
+        priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
     function fund() public payable{
-        require(msg.value.getConversionRate() >= minUSD, "Didn't send enough");
+        require(msg.value.getConversionRate(priceFeed) >= minUSD, "Didn't send enough");
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] += msg.value;
     }
