@@ -1,4 +1,4 @@
-const { networkConfig } = require("./helper-hardhat-config");
+const { networkConfig } = require("../helper-hardhat-config");
 const { network } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
