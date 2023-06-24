@@ -4,7 +4,7 @@ pragma solidity ^0.8.8;
 
 import "./PriceConverter.sol";
 
-error NotOwner();
+error NovoFund_NotOwner();
 
 contract NovoFund{
     using PriceConverter for uint256;
@@ -17,9 +17,23 @@ contract NovoFund{
     
     AggregatorV3Interface public priceFeed;
 
+    modifier ownerSigil{
+        //require(msg.sender == owner, "Sender is not owner");
+        if(msg.sender != owner) { revert NovoFund_NotOwner(); }
+        _;
+    }
+
     constructor(address priceFeedAddress){
         owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
+    }
+
+    receive() payable external{
+        fund();
+    }
+
+    fallback() payable external{
+        fund();
     }
 
     function fund() public payable{
@@ -36,19 +50,5 @@ contract NovoFund{
         funders = new address[](0);
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
-    }
-    
-    modifier ownerSigil{
-        //require(msg.sender == owner, "Sender is not owner");
-        if(msg.sender != owner) { revert NotOwner(); }
-        _;
-    }
-
-    receive() payable external{
-        fund();
-    }
-
-    fallback() payable external{
-        fund();
     }
 }
