@@ -62,24 +62,31 @@ describe("NovoFund", async function () {
         });
 
         it("Withdraw ETH from a single founder", async function () {
+            //get initial balance
             const startingNovoFundBalance = await novoFund.provider.getBalance(
                 novoFund.address
             );
             const startingDeployerBalance = await novoFund.provider.getBalance(
                 deployer
             );
+
+            //get gas cost
             const transactionRespone = await novoFund.withdraw();
             const transactionReciept = await transactionRespone.wait(1);
             const { gasUsed, effectiveGasPrice } = transactionReciept;
             const gasCost = gasUsed.mul(effectiveGasPrice);
 
+            //get balance after withdrawing
             const endingNovoFundBalance = await novoFund.provider.getBalance(
                 novoFund.address
             );
             const endingDeployerBalance = await novoFund.provider.getBalance(
                 deployer
             );
+
             assert.equal(endingNovoFundBalance, 0);
+
+            //check if inital contract + deployer balance is = final deployer balance plus + cost
             assert.equal(
                 startingNovoFundBalance.add(startingDeployerBalance).toString(),
                 endingDeployerBalance.add(gasCost).toString()
@@ -87,11 +94,12 @@ describe("NovoFund", async function () {
         });
 
         it("Allows us to withdraw with multiple funders", async function () {
+            //gets accounts and funds the contract using each account
             const accounts = await ethers.getSigners();
             for (let i = 1; i < 6; i++) {
                 const novoFundConnectedContract = await novoFund.connect(
                     accounts[i]
-                );
+                ); //connecting each account to contract to fund
                 await novoFundConnectedContract.fund({ value: sendValue });
             }
 
@@ -113,12 +121,14 @@ describe("NovoFund", async function () {
             const endingDeployerBalance = await novoFund.provider.getBalance(
                 deployer
             );
+
             assert.equal(endingNovoFundBalance, 0);
             assert.equal(
                 startingNovoFundBalance.add(startingDeployerBalance).toString(),
                 endingDeployerBalance.add(gasCost).toString()
             );
 
+            //checks if all the funders are removed
             await expect(novoFund.funders(0)).to.be.reverted;
 
             for (let i = 1; i < 6; i++) {
@@ -127,6 +137,14 @@ describe("NovoFund", async function () {
                     0
                 );
             }
+        });
+
+        it("Only allows the ownner to withdraw", async function () {
+            const accounts = await ethers.getSigners();
+            const nonOwner = accounts[1];
+            const nonOwnerConnectedContract = await novoFund.connect(nonOwner);
+
+            await expect(nonOwnerConnectedContract.withdraw()).to.be.reverted;
         });
     });
 });
