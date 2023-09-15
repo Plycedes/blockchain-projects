@@ -6,6 +6,7 @@ async function main() {
     console.log("Deploying contract...");
     const storage = await StorageFactory.deploy();
     console.log(`Contract deployed to ${storage.address}`);
+
     if (network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY) {
         console.log("Wating for 6 blocks to get mined...");
         await storage.deployTransaction.wait(6);

@@ -8,6 +8,7 @@ async function main() {
     console.log("Deploying contract...");
     const transactionRespone = await novoFund.fund({ value: sendValue });
     await transactionRespone.wait(1);
+    log(transactionRespone);
     console.log("Successfully funded!");
 }
 
